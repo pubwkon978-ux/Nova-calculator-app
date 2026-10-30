@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f1f">
+<title>Nova Super Calculator</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0f1f;--panel:#131a30;--panel2:#19223d;--line:#ffffff14;--text:#f5f7ff;--muted:#94a0bd;--purple:#9585ff;--teal:#47e0c4;--danger:#ff7e9a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px;font-family:Inter,Segoe UI,system-ui,sans-serif;color:var(--text);background:radial-gradient(ellipse at 10% 0%,#32266380,transparent 38%),radial-gradient(ellipse at 100% 90%,#07504d55,transparent 32%),var(--bg)}
+button,input,select{font:inherit}button{cursor:pointer;color:inherit}
+.shell{max-width:1120px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--teal));color:#11152b;font-size:25px;font-weight:900;box-shadow:0 10px 28px #7667ff40}h1{font-size:22px;margin:0;letter-spacing:-.5px}.sub{font-size:12px;color:var(--muted);margin-top:4px}.pill{font-size:11px;color:#a8ffeb;border:1px solid #47e0c444;background:#47e0c40d;padding:8px 11px;border-radius:99px;white-space:nowrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{border:1px solid var(--line);background:#ffffff06;color:var(--muted);border-radius:13px;padding:11px 15px;font-size:13px;font-weight:650}.tab.active{background:#9585ff20;color:#d9d3ff;border-color:#9585ff66}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);gap:18px}.panel{background:linear-gradient(145deg,#ffffff08,#ffffff02),var(--panel);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 20px 55px #0002;min-width:0}.panel h2{font-size:16px;margin:0 0 6px}.hint{color:var(--muted);font-size:12px;line-height:1.55;margin:0 0 16px}.display{padding:16px 4px 20px;text-align:right;min-height:116px;display:flex;flex-direction:column;justify-content:end;overflow:hidden}.expr{font-size:14px;color:var(--muted);min-height:22px;overflow-wrap:anywhere}.value{font-size:clamp(35px,6vw,52px);font-weight:680;letter-spacing:-1.8px;overflow-wrap:anywhere}.keys{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.key{height:52px;border:1px solid #ffffff0c;border-radius:14px;background:#ffffff08;font-weight:600;font-size:16px;transition:.12s}.key:hover{background:#ffffff17}.key:active{transform:scale(.96)}.key.fn{color:#c9c1ff;background:#9585ff12}.key.op{color:#a6ffef;background:#47e0c410}.key.eq{background:linear-gradient(135deg,#9585ff,#667df3);border:0;color:white}.key.wide{grid-column:span 2}.key.small{font-size:13px}.field{display:flex;flex-direction:column;gap:7px;margin:13px 0}.field label{font-size:12px;color:#c2cbe0;font-weight:650}.field input,.field select{width:100%;min-width:0;border:1px solid #ffffff1a;background:#0c1225;color:var(--text);border-radius:12px;padding:12px 13px;outline:none}.field input:focus,.field select:focus{border-color:#9585ff99;box-shadow:0 0 0 3px #9585ff16}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.action{border:0;border-radius:12px;padding:12px 15px;background:linear-gradient(135deg,#9585ff,#697df0);font-weight:750;color:white}.action.secondary{background:#ffffff0b;border:1px solid var(--line);color:#dfe4f5}.resultbox{margin-top:15px;border:1px solid #47e0c433;background:linear-gradient(135deg,#47e0c410,#9585ff0b);border-radius:16px;padding:15px}.resultlabel{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.3px}.resultmain{font-size:25px;font-weight:750;margin-top:6px;overflow-wrap:anywhere}.resultdetail{font-size:12px;color:#b8c4dd;line-height:1.7;margin-top:7px;overflow-wrap:anywhere}.hidden{display:none!important}.quickgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.quick{border:1px solid var(--line);background:#ffffff06;border-radius:14px;padding:13px;text-align:left}.quick strong{display:block;font-size:13px}.quick span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.sectiontitle{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);margin:20px 0 10px}.foot{color:var(--muted);font-size:11px;text-align:center;margin:18px 0 4px}
+@media(max-width:800px){body{padding:15px}.layout{grid-template-columns:1fr}.top{align-items:flex-start}.panel{padding:16px}.value{font-size:42px}}
+@media(max-width:390px){.key{height:46px;font-size:14px}.keys{gap:6px}.tab{padding:9px 11px}.row{gap:8px}}
+
+/* ===== Mobile UI (fixed layout, glass) ===== */
+html{-webkit-text-size-adjust:100%;height:100%}*{-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:0;min-height:0;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;user-select:none;-webkit-user-select:none;overscroll-behavior:none;
+background:radial-gradient(circle at 10% 6%,#7a5cff99,transparent 42%),radial-gradient(circle at 95% 40%,#00d4b062,transparent 40%),radial-gradient(circle at 15% 95%,#ff5fa24d,transparent 42%),var(--bg)}
+input,select{user-select:text;-webkit-user-select:text}
+.shell{flex:1;min-height:0;width:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column}
+.top{flex:none;margin:0;padding:10px 14px;gap:10px;background:#ffffff0d;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #ffffff1f}
+.logo{width:36px;height:36px;border-radius:11px;overflow:hidden;background:none;box-shadow:0 6px 16px #0006}.logo img{width:100%;height:100%;display:block}
+h1{font-size:17px}.sub{font-size:10.5px;margin-top:2px}.pill,.tabs,.foot{display:none}
+.layout{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 10px 8px;overflow-y:auto;overscroll-behavior:contain}
+.layout>section:not(#calcPanel){flex:none}
+.panel{border-radius:22px;padding:16px;background:linear-gradient(145deg,#ffffff26,#ffffff0a);border:1px solid #ffffff30;backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);box-shadow:inset 0 1px 0 #ffffff3d,0 16px 40px #0006}
+#calcPanel{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 8px 10px}
+#calcPanel>h2,#calcPanel>.hint,#calcPanel .sectiontitle,#calcPanel .quickgrid{display:none}
+.display{flex:0 0 auto;min-height:0;height:clamp(78px,13vh,112px);padding:6px 8px 10px}
+.value{font-size:clamp(30px,5.6vh,42px);letter-spacing:-1px}.expr{font-size:12px;min-height:18px}
+.keys{flex:1;min-height:0;grid-auto-rows:minmax(0,1fr);gap:7px}
+.key{height:auto;min-height:0;font-size:18px;border-radius:15px;background:linear-gradient(160deg,#ffffff30,#ffffff0c);border:1px solid #ffffff2b;box-shadow:inset 0 1px 0 #ffffff47,inset 0 -6px 10px #0000001f,0 4px 10px #0004}
+.key:active{transform:scale(.94);background:linear-gradient(160deg,#ffffff48,#ffffff1c)}
+.key.small{font-size:13px}
+.key.fn{color:#ddd7ff;background:linear-gradient(160deg,#9585ff5c,#9585ff16);border-color:#9585ff59}
+.key.op{color:#b9fff2;background:linear-gradient(160deg,#47e0c450,#47e0c412);border-color:#47e0c458}
+.key.eq{color:#fff;background:linear-gradient(160deg,#b9afff,#5d70f2);border:1px solid #ffffff59;box-shadow:inset 0 1px 0 #ffffffa0,0 6px 18px #6a7bff66}
+.field input,.field select{font-size:16px;padding:14px;background:#ffffff12;border:1px solid #ffffff26;border-radius:14px}
+.action:not(.secondary){width:100%;padding:15px 18px;font-size:15px;box-shadow:inset 0 1px 0 #ffffff55,0 8px 20px #6a7bff44}
+.action.secondary{background:#ffffff14;border:1px solid #ffffff2a}
+.resultbox{background:linear-gradient(135deg,#ffffff1e,#ffffff08);border:1px solid #ffffff2e;box-shadow:inset 0 1px 0 #ffffff33}
+.quick{padding:16px 14px;min-height:78px;border-radius:16px;background:linear-gradient(160deg,#ffffff24,#ffffff08);border:1px solid #ffffff2b;box-shadow:inset 0 1px 0 #ffffff3d}
+.bnav{flex:none;width:100%;max-width:560px;margin:0 auto;display:flex;gap:6px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:#ffffff0f;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid #ffffff1f}
+.bn{flex:1;border:1px solid transparent;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:650;padding:6px 0;border-radius:14px}
+.bn i{font-style:normal;font-size:19px;line-height:1.1}
+.bn.active{color:#e4e0ff;border-color:#ffffff26;background:linear-gradient(160deg,#9585ff48,#9585ff14);box-shadow:inset 0 1px 0 #ffffff33}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top"><div class="brand"><div class="logo"><img alt="" src="data:image/png;base64,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"></div><div><h1>Nova Super</h1><div class="sub">Scientific · Geometry · Health · Money · Converter</div></div></div><div class="pill">● READY TO CALCULATE</div></header>
+<nav class="tabs">
+<button class="tab active" data-tab="calc">Scientific</button><button class="tab" data-tab="age">Age Calculator</button><button class="tab" data-tab="area">Area & Geometry</button><button class="tab" data-tab="vol">Volume</button><button class="tab" data-tab="pct">Percentage</button><button class="tab" data-tab="bmi">BMI</button><button class="tab" data-tab="conv">Converter</button><button class="tab" data-tab="fin">Money</button><button class="tab" data-tab="hist">History</button>
+</nav>
+<div class="layout">
+<section class="panel" id="calcPanel">
+<h2>Scientific Calculator</h2><p class="hint">Basic math, powers, roots and trigonometry. Trigonometric angles use degrees.</p>
+<div class="display"><div class="expr" id="calcExpr">Ready</div><div class="value" id="calcValue">0</div></div>
+<div class="keys">
+<button class="key fn small" data-c="log(">log</button><button class="key fn small" data-c="ln(">ln</button><button class="key fn" data-c="e">e</button><button class="key fn small" data-c="10^">10ˣ</button><button class="key fn small" data-c="ans">Ans</button>
+<button class="key fn small" data-c="sin(">sin</button><button class="key fn small" data-c="cos(">cos</button><button class="key fn small" data-c="tan(">tan</button><button class="key fn" data-c="sqrt(">√</button><button class="key fn" data-c="^2">x²</button>
+<button class="key fn" data-c="(">(</button><button class="key fn" data-c=")">)</button><button class="key fn" data-c="pi">π</button><button class="key fn" data-c="^">xʸ</button><button class="key fn" data-c="÷">÷</button>
+<button class="key" data-c="7">7</button><button class="key" data-c="8">8</button><button class="key" data-c="9">9</button><button class="key fn" data-action="back">⌫</button><button class="key op" data-c="×">×</button>
+<button class="key" data-c="4">4</button><button class="key" data-c="5">5</button><button class="key" data-c="6">6</button><button class="key fn" data-c="%">%</button><button class="key op" data-c="−">−</button>
+<button class="key" data-c="1">1</button><button class="key" data-c="2">2</button><button class="key" data-c="3">3</button><button class="key fn" data-c="!">n!</button><button class="key op" data-c="+">+</button>
+<button class="key fn" data-action="clear">AC</button><button class="key" data-c="0">0</button><button class="key" data-c=".">.</button><button class="key eq wide" data-action="equals">=</button>
+</div>
+<div class="sectiontitle">Quick tools</div><div class="quickgrid">
+<button class="quick" data-quick="square"><strong>Square a number</strong><span>Example: 12² = 144</span></button>
+<button class="quick" data-quick="percent"><strong>Find a percentage</strong><span>Example: 15% of 240</span></button>
+</div>
+</section>
+<section class="panel">
+<div id="agePanel" class="tool hidden">
+<h2>Age Calculator</h2><p class="hint">Enter your date of birth to calculate your age in years, months and days.</p>
+<div class="field"><label for="dob">Date of birth</label><input type="date" id="dob"></div>
+<div class="field"><label for="asof">Calculate age on</label><input type="date" id="asof"></div>
+<button class="action" id="ageBtn">Calculate Age</button>
+<div class="resultbox"><div class="resultlabel">Your age</div><div class="resultmain" id="ageMain">—</div><div class="resultdetail" id="ageDetail">Choose your date of birth and calculate.</div></div>
+</div>
+<div id="areaPanel" class="tool hidden">
+<h2>Area & Geometry</h2><p class="hint">Choose a shape, enter its measurements, and get the area instantly.</p>
+<div class="field"><label for="shape">Select shape</label><select id="shape">
+<option value="rect">Rectangle / දිගැති හතරැස්</option><option value="square">Square / සමචතුරස්‍රය</option><option value="tri">Triangle / ත්‍රිකෝණය</option><option value="circle">Circle / වෘත්තය</option><option value="trap">Trapezium / සමලම්බය</option><option value="parallelogram">Parallelogram / සමාන්තරාස්‍රය</option><option value="rhombus">Rhombus / සමචතුරස්‍රය (Diagonal)</option><option value="cube">Cube / ඝනකය (Surface area)</option><option value="cylinder">Cylinder / සිලින්ඩරය (Curved surface)</option>
+</select></div>
+<div class="field" id="fieldA"><label id="labelA" for="dimA">Length</label><input type="number" id="dimA" min="0" step="any" placeholder="Enter measurement"></div>
+<div class="field" id="fieldB"><label id="labelB" for="dimB">Width</label><input type="number" id="dimB" min="0" step="any" placeholder="Enter measurement"></div>
+<div class="field hidden" id="fieldC"><label id="labelC" for="dimC">Height</label><input type="number" id="dimC" min="0" step="any" placeholder="Enter measurement"></div>
+<div class="field"><label for="unit">Measurement unit</label><select id="unit"><option value="mm">Millimetres (mm)</option><option value="cm" selected>Centimetres (cm)</option><option value="m">Metres (m)</option><option value="in">Inches (in)</option><option value="ft">Feet (ft)</option></select></div>
+<button class="action" id="areaBtn">Calculate Area</button>
+<div class="resultbox"><div class="resultlabel" id="areaLabel">Area</div><div class="resultmain" id="areaMain">—</div><div class="resultdetail" id="areaDetail">Choose a shape and enter measurements.</div></div>
+</div>
+<div id="toolHost" class="tool hidden"></div>
+<div id="homePanel" class="tool hidden">
+<h2>Welcome to Nova Super</h2><p class="hint">Everyday maths, geometry, health, money and unit conversions in one place. Pick a tool:</p>
+<div class="quickgrid">
+<button class="quick" data-goto="age"><strong>◷ Age</strong><span>Years, months, days</span></button>
+<button class="quick" data-goto="area"><strong>▱ Area & Geometry</strong><span>9 common shapes</span></button>
+<button class="quick" data-goto="vol"><strong>▣ Volume</strong><span>Cube to pyramid</span></button>
+<button class="quick" data-goto="pct"><strong>% Percentage</strong><span>5 percentage modes</span></button>
+<button class="quick" data-goto="bmi"><strong>♡ BMI</strong><span>Height and weight</span></button>
+<button class="quick" data-goto="conv"><strong>⇄ Converter</strong><span>Length, mass, area, perch…</span></button>
+<button class="quick" data-goto="fin"><strong>$ Money</strong><span>Discount, tax, EMI</span></button>
+<button class="quick" data-goto="hist"><strong>⟲ History</strong><span>Copy or clear results</span></button>
+</div>
+<div class="sectiontitle">Tips</div><div class="resultdetail">Ans reuses your last result · every result is saved in History</div>
+</div>
+</section>
+</div>
+<div class="foot">Nova Super Calculator · Runs offline in your browser</div>
+</div>
+<nav class="bnav"><button class="bn active" data-nav="calc"><i>∑</i>Calculator</button><button class="bn" data-nav="home"><i>▦</i>Tools</button><button class="bn" data-nav="hist"><i>⟲</i>History</button></nav>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const calcValue=$('calcValue'), calcExpr=$('calcExpr');let expression='',lastAns=0;
+function setExpression(v){expression=v;calcValue.textContent=expression||'0';}
+function factorial(n){if(!Number.isInteger(n)||n<0||n>170)throw Error('Factorial needs a whole number from 0 to 170');let r=1;for(let i=2;i<=n;i++)r*=i;return r;}
+function evaluate(source){
+ let s=source.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,'pi');
+ s=s.replace(/\bpi\b/g,'Math.PI').replace(/\bsqrt\(/g,'Math.sqrt(');
+ s=s.replace(/\blog\(/g,'Math.log10(').replace(/\bln\(/g,'Math.log(').replace(/\be\b/g,'Math.E');
+ s=s.replace(/\bsin\(/g,'SIN(').replace(/\bcos\(/g,'COS(').replace(/\btan\(/g,'TAN(');
+ s=s.replace(/\^/g,'**').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)');
+ s=s.replace(/(\d+(?:\.\d+)?|\([^()]*\))!/g,'factorial($1)');
+ s=s.replace(/SIN\(([^()]*)\)/g,'Math.sin(($1)*Math.PI/180)').replace(/COS\(([^()]*)\)/g,'Math.cos(($1)*Math.PI/180)').replace(/TAN\(([^()]*)\)/g,'Math.tan(($1)*Math.PI/180)');
+ if(!/^[\d\s.+\-*/()%!,Math_PIa-zA-Z]*$/.test(s))throw Error('Invalid expression');
+ if(/(?:Math\.|factorial|PI|sqrt|sin|cos|tan)/.test(s)===false && !/^[\d\s.+\-*/()%]*$/.test(s))throw Error('Invalid expression');
+ if(/(?:Math\.|factorial|PI|sqrt|sin|cos|tan)/.test(s) && !/^[\d\s.+\-*/(),A-Za-z_]*$/.test(s))throw Error('Invalid expression');
+ const result=Function('factorial','return ('+s+')')(factorial);
+ if(typeof result!=='number'||!Number.isFinite(result))throw Error('Math error');
+ return Number(result.toPrecision(12));
+}
+function calculate(){
+ if(!expression.trim())return;
+ try{let r=evaluate(expression);calcExpr.textContent=expression+' =';addHist(expression+' = '+r);lastAns=r;expression=String(r);calcValue.textContent=expression;}
+ catch(e){calcExpr.textContent=e.message||'Invalid expression';calcValue.textContent='Error';expression='';}
+}
+document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{
+ const v=b.dataset.c==='ans'?String(lastAns):b.dataset.c;
+ if(v==='^2')expression+='^2';else expression+=v;
+ calcExpr.textContent='';calcValue.textContent=expression||'0';
+}));
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
+ if(b.dataset.action==='clear'){expression='';calcExpr.textContent='Ready';calcValue.textContent='0';}
+ if(b.dataset.action==='back'){expression=expression.slice(0,-1);calcValue.textContent=expression||'0';}
+ if(b.dataset.action==='equals')calculate();
+}));
+document.addEventListener('keydown',e=>{
+ if($('calcPanel').classList.contains('hidden'))return;
+ if(/^[0-9.]$/.test(e.key)||['+','-','*','/','(',')','%','^','!'].includes(e.key)){expression+=e.key;calcValue.textContent=expression;calcExpr.textContent='';}
+ else if(e.key==='Enter'){e.preventDefault();calculate();}
+ else if(e.key==='Backspace'){expression=expression.slice(0,-1);calcValue.textContent=expression||'0';}
+ else if(e.key==='Escape'){expression='';calcValue.textContent='0';calcExpr.textContent='Ready';}
+});
+function go(tab){
+ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ $('calcPanel').classList.toggle('hidden',tab!=='calc');
+ $('agePanel').classList.toggle('hidden',tab!=='age');
+ $('areaPanel').classList.toggle('hidden',tab!=='area');
+ $('homePanel').classList.toggle('hidden',tab!=='home');showExtra(tab);
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.goto)));
+document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{
+ if(b.dataset.quick==='square'){let n=prompt('Enter a number to square:');if(n!==null&&n.trim()!==''&&Number.isFinite(Number(n))){expression=`(${n})^2`;calcExpr.textContent='Square';calculate();go('calc');}}
+ if(b.dataset.quick==='percent'){let p=prompt('Percentage (e.g. 15):');if(p===null||p.trim()==='')return;let n=prompt('Percentage of which number?');if(n!==null&&p.trim()!==''&&n.trim()!==''&&Number.isFinite(Number(p))&&Number.isFinite(Number(n))){expression=`(${p}/100)*(${n})`;calcExpr.textContent=`${p}% of ${n}`;calculate();go('calc');}}
+}));
+const today=new Date();const localDate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+$('asof').value=localDate(today);$('dob').max=localDate(today);$('asof').max=localDate(today);
+function parseDate(s){if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+$('ageBtn').addEventListener('click',()=>{
+ const birth=parseDate($('dob').value),end=parseDate($('asof').value);
+ if(!birth||!end){$('ageMain').textContent='Missing date';$('ageDetail').textContent='Please select both dates.';return;}
+ if(birth>end){$('ageMain').textContent='Invalid dates';$('ageDetail').textContent='Date of birth must be before the calculation date.';return;}
+ let y=end.getFullYear()-birth.getFullYear(),m=end.getMonth()-birth.getMonth(),d=end.getDate()-birth.getDate();
+ if(d<0){m--;const daysPrev=new Date(end.getFullYear(),end.getMonth(),0).getDate();d+=daysPrev;}
+ if(m<0){y--;m+=12;}
+ const days=Math.floor((Date.UTC(end.getFullYear(),end.getMonth(),end.getDate())-Date.UTC(birth.getFullYear(),birth.getMonth(),birth.getDate()))/86400000);
+ const next=new Date(end.getFullYear(),birth.getMonth(),birth.getDate());
+ if(next<=end)next.setFullYear(end.getFullYear()+1);
+ const left=Math.ceil((Date.UTC(next.getFullYear(),next.getMonth(),next.getDate())-Date.UTC(end.getFullYear(),end.getMonth(),end.getDate()))/86400000);
+ $('ageMain').textContent=`${y} years, ${m} months, ${d} days`;
+ $('ageDetail').textContent=`Total: ${days.toLocaleString()} days · ${Math.floor(days/7).toLocaleString()} weeks and ${days%7} days. Next birthday in about ${left} days.`;
+});
+const shape=$('shape');
+function shapeFields(){
+ const v=shape.value;
+ $('fieldA').classList.remove('hidden');$('fieldB').classList.remove('hidden');$('fieldC').classList.add('hidden');
+ const config={
+ rect:['Length','Width','Area'],square:['Side length','','Area'],tri:['Base','Height','Area'],circle:['Radius','','Area'],trap:['Parallel side A','Parallel side B','Area'],parallelogram:['Base','Height','Area'],rhombus:['Diagonal 1','Diagonal 2','Area'],cube:['Side length','','Total surface area'],cylinder:['Radius','Height','Curved surface area']
+ }[v];
+ $('labelA').textContent=config[0];$('labelB').textContent=config[1]||'Not required';$('areaLabel').textContent=config[2];
+ $('fieldB').classList.toggle('hidden',['square','circle','cube'].includes(v));
+ $('fieldC').classList.toggle('hidden',!['cylinder','trap'].includes(v));
+ if(v==='cylinder'){$('labelA').textContent='Radius';$('labelC').textContent='Height';}
+ if(v==='trap'){$('labelC').textContent='Height';}
+}
+shape.addEventListener('change',shapeFields);shapeFields();
+$('areaBtn').addEventListener('click',()=>{
+ const v=shape.value,a=Number($('dimA').value),b=Number($('dimB').value),c=Number($('dimC').value),unit=$('unit').value;
+ const needsB=!['square','circle','cube'].includes(v),needsC=['cylinder','trap'].includes(v);
+ if($('dimA').value===''||a<=0||!Number.isFinite(a)||(needsB&&($('dimB').value===''||b<=0||!Number.isFinite(b)))||(needsC&&($('dimC').value===''||c<=0||!Number.isFinite(c)))){
+ $('areaMain').textContent='Check measurements';$('areaDetail').textContent='Enter positive measurements for all required fields.';return;
+ }
+ let val,formula;
+ switch(v){
+ case'rect':val=a*b;formula='length × width';break;
+ case'square':val=a*a;formula='side × side';break;
+ case'tri':val=a*b/2;formula='½ × base × height';break;
+ case'circle':val=Math.PI*a*a;formula='π × radius²';break;
+ case'trap':val=(a+b)*c/2;formula='½ × (side A + side B) × height';break;
+ case'parallelogram':val=a*b;formula='base × height';break;
+ case'rhombus':val=a*b/2;formula='½ × diagonal 1 × diagonal 2';break;
+ case'cube':val=6*a*a;formula='6 × side²';break;
+ case'cylinder':val=2*Math.PI*a*c;formula='2 × π × radius × height';break;
+ }
+ if(!Number.isFinite(val)){ $('areaMain').textContent='Check measurements';$('areaDetail').textContent='Please enter valid measurements.';return;}
+ $('areaMain').textContent=val.toLocaleString(undefined,{maximumFractionDigits:6})+' '+unit+'²';
+ $('areaDetail').textContent=`Formula: ${formula}. Result rounded to 6 decimal places if needed.`;
+});
+
+/* ===== Super tools: Volume, Percentage, BMI, Converter, Money, History ===== */
+const host=$('toolHost');
+const fmt=(n,d=6)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
+const m2=x=>Number(x).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const R=(main,detail,hist)=>({main,detail,hist:hist||main});
+const LU=[['mm','Millimetres (mm)'],['cm','Centimetres (cm)'],['m','Metres (m)'],['in','Inches (in)'],['ft','Feet (ft)']];
+const UNIT={k:'u',l:'Measurement unit',o:LU,d:'cm'};
+const ML={mm:.001,cm:1,m:1e6,in:16.387064,ft:28316.846592};
+const CV={len:{mm:.001,cm:.01,m:1,km:1000,in:.0254,ft:.3048,yd:.9144,mi:1609.344},mass:{mg:1e-6,g:.001,kg:1,t:1000,oz:.028349523125,lb:.45359237},area:{'mm²':1e-6,'cm²':1e-4,'m²':1,'km²':1e6,ha:1e4,'ft²':.09290304,'in²':6.4516e-4,acre:4046.8564224,perch:25.29285264},vol:{ml:.001,l:1,'m³':1000,'fl oz':.0295735295625,gal:3.785411784},speed:{'m/s':1,'km/h':1/3.6,mph:.44704,knot:.514444444},temp:{'°C':1,'°F':1,K:1}};
+const T={
+vol:{title:'Volume Calculator',hint:'Choose a solid, enter its measurements and get the volume and capacity.',
+ sel:['Select solid',[['cube','Cube / ඝනකය'],['cuboid','Cuboid / ඝනකාභය'],['cylinder','Cylinder / සිලින්ඩරය'],['sphere','Sphere / ගෝලය'],['cone','Cone / කේතුව'],['pyramid','Pyramid / පිරමීඩය']]],
+ f:s=>({cube:[['a','Side length']],cuboid:[['a','Length'],['b','Width'],['c','Height']],cylinder:[['a','Radius'],['c','Height']],sphere:[['a','Radius']],cone:[['a','Radius'],['c','Height']],pyramid:[['a','Base length'],['b','Base width'],['c','Height']]}[s]).concat([UNIT]),
+ c:(s,v)=>{const{a,b,c}=v,P=Math.PI;
+  const r={cube:[a**3,'side³'],cuboid:[a*b*c,'length × width × height'],cylinder:[P*a*a*c,'π × r² × h'],sphere:[4/3*P*a**3,'⁴⁄₃ × π × r³'],cone:[P*a*a*c/3,'⅓ × π × r² × h'],pyramid:[a*b*c/3,'⅓ × base area × height']}[s];
+  const ml=r[0]*ML[v.u];
+  return R(fmt(r[0])+' '+v.u+'³',`Formula: ${r[1]}<br>Capacity: ${fmt(ml/1000)} litres (${fmt(ml)} ml)`,`Volume of ${s} = ${fmt(r[0])} ${v.u}³`);}},
+pct:{title:'Percentage Calculator',hint:'Find a percentage, find what percent one value is of another, or work out increases and decreases.',any:true,
+ sel:['What do you want to find?',[['of','X% of a number'],['is','X is what % of Y'],['inc','Increase a number by X%'],['dec','Decrease a number by X%'],['chg','% change from old to new']]],
+ f:s=>({of:[['x','Percentage (%)'],['y','Number']],is:[['x','Value (X)'],['y','Total (Y)']],inc:[['x','Percentage (%)'],['y','Original number']],dec:[['x','Percentage (%)'],['y','Original number']],chg:[['x','Old value'],['y','New value']]}[s]),
+ c:(s,v)=>{const{x,y}=v;let r,t,main;
+  if(s==='of'){r=x*y/100;main=fmt(r);t=`${fmt(x)}% of ${fmt(y)} = ${main}`;}
+  else if(s==='is'){if(y===0)throw Error('Total cannot be 0');r=x/y*100;main=fmt(r,4)+'%';t=`${fmt(x)} is ${main} of ${fmt(y)}`;}
+  else if(s==='inc'){r=y*(1+x/100);main=fmt(r);t=`${fmt(y)} + ${fmt(x)}% = ${main} (change ${fmt(r-y)})`;}
+  else if(s==='dec'){r=y*(1-x/100);main=fmt(r);t=`${fmt(y)} − ${fmt(x)}% = ${main} (change ${fmt(r-y)})`;}
+  else{if(x===0)throw Error('Old value cannot be 0');r=(y-x)/x*100;main=(r>0?'+':'')+fmt(r,4)+'%';t=`${fmt(x)} → ${fmt(y)} is a ${r>=0?'increase':'decrease'} of ${fmt(Math.abs(r),4)}%`;}
+  return R(main,t,t);}},
+bmi:{title:'BMI Calculator',hint:'Body Mass Index from your height and weight.',
+ sel:['Units',[['m','Metric (cm, kg)'],['i','Imperial (ft/in, lb)']]],
+ f:s=>s==='m'?[['h','Height (cm)'],['w','Weight (kg)']]:[['ft','Height (feet)'],['_i','Height (extra inches)'],['w','Weight (pounds)']],
+ c:(s,v)=>{const m=s==='m'?v.h/100:(v.ft*12+v._i)*.0254,kg=s==='m'?v.w:v.w*.45359237;
+  if(m<.5||m>2.8)throw Error('Height looks out of range');
+  const b=kg/(m*m),cat=b<18.5?'Underweight':b<25?'Normal weight':b<30?'Overweight':'Obese',w=x=>s==='m'?fmt(x,1)+' kg':fmt(x/.45359237,1)+' lb';
+  return R(fmt(b,1)+' · '+cat,`Healthy weight for your height: ${w(18.5*m*m)} – ${w(24.9*m*m)}<br>WHO ranges: under 18.5 · 18.5–24.9 · 25–29.9 · 30+. For South Asian adults, risk is usually noted from about 23.<br>BMI is a screening guide, not a diagnosis.`,`BMI = ${fmt(b,1)} (${cat})`);}},
+conv:{title:'Unit Converter',hint:'Convert length, mass, area (including perch), volume, speed and temperature.',any:true,
+ sel:['Category',[['len','Length'],['mass','Mass / Weight'],['area','Area'],['vol','Volume'],['speed','Speed'],['temp','Temperature']]],
+ f:s=>{const o=Object.keys(CV[s]).map(u=>[u,u]);return[['v','Value'],{k:'f',l:'From',o,d:o[0][0]},{k:'t',l:'To',o,d:o[1][0]}];},
+ c:(s,v)=>{let r;
+  if(s==='temp'){const c=v.f==='°C'?v.v:v.f==='°F'?(v.v-32)*5/9:v.v-273.15;if(c<-273.15)throw Error('Below absolute zero');r=v.t==='°C'?c:v.t==='°F'?c*9/5+32:c+273.15;}
+  else r=v.v*CV[s][v.f]/CV[s][v.t];
+  const t=`${fmt(v.v)} ${v.f} = ${fmt(r,8)} ${v.t}`;return R(fmt(r,8)+' '+v.t,t,t);}},
+fin:{title:'Money Tools',hint:'Discounts, tax and loan instalments (EMI).',
+ sel:['Choose a tool',[['disc','Discount / Sale price'],['tax','Add tax (VAT)'],['untax','Remove tax from a price'],['emi','Loan instalment (EMI)']]],
+ f:s=>({disc:[['p','Original price'],['_r','Discount (%)']],tax:[['p','Price before tax'],['_r','Tax rate (%)']],untax:[['p','Price including tax'],['_r','Tax rate (%)']],emi:[['p','Loan amount'],['_r','Annual interest rate (%)'],['n','Number of months']]}[s]),
+ c:(s,v)=>{const p=v.p,r=v._r;
+  if(s==='disc'){if(r>100)throw Error('Discount cannot exceed 100%');const f=p*(1-r/100);return R(m2(f),`You save ${m2(p-f)}`,`${m2(p)} − ${m2(r)}% = ${m2(f)}`);}
+  if(s==='tax'){const t=p*r/100;return R(m2(p+t),`Tax amount: ${m2(t)}`,`${m2(p)} + ${m2(r)}% tax = ${m2(p+t)}`);}
+  if(s==='untax'){const b=p/(1+r/100);return R(m2(b),`Tax included: ${m2(p-b)}`,`${m2(p)} incl. ${m2(r)}% tax → ${m2(b)} before tax`);}
+  const n=v.n;if(!Number.isInteger(n))throw Error('Months must be a whole number');
+  const i=r/1200,e=i?p*i*Math.pow(1+i,n)/(Math.pow(1+i,n)-1):p/n,tot=e*n;
+  return R(m2(e)+' / month',`Total payable: ${m2(tot)}<br>Total interest: ${m2(tot-p)}`,`EMI on ${m2(p)} @ ${m2(r)}% for ${n} months = ${m2(e)}/month`);}}
+};
+const S={};
+function renderTool(id){
+ const t=T[id],st=S[id]=S[id]||{},sel=st.sel||t.sel[1][0][0],fs=t.f(sel);
+ let h=`<h2>${t.title}</h2><p class="hint">${t.hint}</p><div class="field"><label>${t.sel[0]}</label><select id="x_sel">${t.sel[1].map(o=>`<option value="${o[0]}"${o[0]===sel?' selected':''}>${o[1]}</option>`).join('')}</select></div>`;
+ fs.forEach(f=>{
+  if(Array.isArray(f))h+=`<div class="field"><label>${f[1]}</label><input type="number" step="any" data-k="${f[0]}" value="${st[f[0]]??''}" placeholder="Enter value"></div>`;
+  else{const cur=f.o.some(o=>o[0]===st[f.k])?st[f.k]:(f.d||f.o[0][0]);h+=`<div class="field"><label>${f.l}</label><select data-k="${f.k}">${f.o.map(o=>`<option value="${o[0]}"${o[0]===cur?' selected':''}>${o[1]}</option>`).join('')}</select></div>`;}
+ });
+ h+=`<button class="action" id="x_go">Calculate</button><div class="resultbox"><div class="resultlabel">Result</div><div class="resultmain" id="x_main">—</div><div class="resultdetail" id="x_det">Enter values and press Calculate.</div></div>`;
+ host.innerHTML=h;
+ const read=()=>{st.sel=$('x_sel').value;host.querySelectorAll('[data-k]').forEach(e=>st[e.dataset.k]=e.value);};
+ $('x_sel').onchange=()=>{read();renderTool(id);};
+ $('x_go').onclick=()=>{read();try{
+  const v={};
+  fs.forEach(f=>{
+   if(!Array.isArray(f)){v[f.k]=st[f.k]||f.d||f.o[0][0];return;}
+   const k=f[0],raw=st[k],zero=k[0]==='_';
+   if(raw===''&&!zero)throw Error('Please fill in: '+f[1]);
+   const n=raw===''?0:Number(raw);
+   if(!Number.isFinite(n)||(zero?n<0:(!t.any&&n<=0)))throw Error(f[1]+(zero?' must be 0 or more':' must be greater than 0'));
+   v[k]=n;
+  });
+  const r=t.c(sel,v);$('x_main').textContent=r.main;$('x_det').innerHTML=r.detail;addHist(r.hist);
+ }catch(e){$('x_main').textContent='Check input';$('x_det').textContent=e.message;}};
+ host.querySelectorAll('input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('x_go').click();}));
+}
+let hist=[];try{hist=JSON.parse(localStorage.getItem('nova_hist')||'[]');}catch(e){}
+function addHist(text){hist.unshift({t:new Date().toLocaleString(),x:text});hist=hist.slice(0,100);try{localStorage.setItem('nova_hist',JSON.stringify(hist));}catch(e){}}
+function copyText(s,btn){
+ const done=()=>{if(!btn)return;const o=btn.textContent;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=o,1200);};
+ function fb(){const a=document.createElement('textarea');a.value=s;document.body.appendChild(a);a.select();try{document.execCommand('copy');done();}catch(e){}a.remove();}
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(s).then(done,fb);else fb();
+}
+function renderHist(){
+ host.innerHTML='<h2>Calculation History</h2><p class="hint">Every result you calculate is saved here on this device (latest 100).</p><div style="display:flex;gap:8px;margin-bottom:12px"><button class="action secondary" id="h_all">Copy all</button><button class="action secondary" id="h_clr">Clear history</button></div><div id="h_list"></div>';
+ const L=$('h_list');
+ if(!hist.length)L.innerHTML='<div class="resultdetail">No calculations yet. Use any tool and your results will appear here.</div>';
+ hist.forEach(h=>{
+  const d=document.createElement('div');d.className='resultbox';d.style.cssText='margin-top:9px;padding:11px 13px;display:flex;gap:10px;align-items:center;justify-content:space-between';
+  d.innerHTML='<div style="min-width:0"><div class="resultdetail" style="margin:0;color:var(--text);font-size:14px"></div><div class="resultlabel" style="margin-top:4px"></div></div><button class="action secondary" style="padding:7px 11px;font-size:12px">Copy</button>';
+  d.querySelector('.resultdetail').textContent=h.x;d.querySelector('.resultlabel').textContent=h.t;
+  d.querySelector('button').onclick=e=>copyText(h.x,e.target);L.appendChild(d);
+ });
+ $('h_all').onclick=e=>{if(hist.length)copyText(hist.map(h=>h.x).join('\n'),e.target);};
+ $('h_clr').onclick=()=>{if(!hist.length||confirm('Clear all history?')){hist=[];try{localStorage.removeItem('nova_hist');}catch(e){}renderHist();}};
+}
+function showExtra(tab){
+ document.querySelectorAll('.bn').forEach(b=>b.classList.toggle('active',b.dataset.nav===(tab==='calc'||tab==='hist'?tab:'home')));
+ document.querySelector('.layout>section:last-child').classList.toggle('hidden',tab==='calc');
+ const on=!!T[tab]||tab==='hist';host.classList.toggle('hidden',!on);
+ if(T[tab])renderTool(tab);else if(tab==='hist')renderHist();
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
+showExtra('calc');
+})();
+</script>
+</body>
+</html>
